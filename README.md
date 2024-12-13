@@ -46,6 +46,7 @@ restart VSCODE manuelly
 pip install pandas  
 pip install python-dotenv  
 pip install python-binance  
+pip install websocket-client
 
 
 </details>
