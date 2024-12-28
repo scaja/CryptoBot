@@ -47,6 +47,6 @@ pip install pandas
 pip install python-dotenv  
 pip install python-binance  
 pip install websocket-client
-
+pip install elasticsearch
 
 </details>
