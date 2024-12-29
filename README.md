@@ -50,3 +50,11 @@ pip install websocket-client
 pip install elasticsearch
 
 </details>
+
+<details>
+<summary>unittest</summary>
+
+python -m unittest discover
+
+</details>
+
