@@ -27,20 +27,15 @@ def on_message(ws, message):
     msg = json.loads(message)
     print(msg)
     d = [(msg['T'],msg['p'])]
-    global df
-    df = pd.concat([df, pd.DataFrame.from_records(d)])
-    print(df)
-    #print(message)
-
+    df = pd.DataFrame.from_records(d)
+    df_streaming_data = preprocessing_script.build_trad_data_frame(df, symbol)
+    bulk_script.insert_elastic_search(df_streaming_data, index)
+ 
 def on_error(ws, error):
     print(error)
 
 def on_close(ws, close_status_code, close_msg):
     print('### closed ###')
-    #df.columns = ['time', 'price']
-    #df['time'] = pd.to_datetime(df['time'], unit='ms')
-    df_streaming_data = preprocessing_script.build_trad_data_frame(df, symbol)
-    bulk_script.insert_elastic_search(df_streaming_data, index)
     
 def on_open(ws):
     print("Opened connection")

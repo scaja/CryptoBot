@@ -1,16 +1,10 @@
 #! /usr/bin/python
 from elasticsearch import Elasticsearch, helpers
-#import csv
-import pandas as pd
 
 def insert_elastic_search(df, index):
   
-    print(index)
-
     # Connection to the cluster
     es = Elasticsearch(hosts = "http://@localhost:9200")
-
-    print(df)
 
     # mapping
     mapping = {
