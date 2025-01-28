@@ -58,3 +58,41 @@ python -m unittest discover
 
 </details>
 
+<details>
+<summary>pyspark</summary>
+
+## install Java
+
+sudo apt update
+sudo apt install openjdk-8-jre-headless -y
+sudo apt install openjdk-8-jdk-headless -y
+
+## install env
+
+sudo apt install python3.8-venv -y
+
+python3 -m venv .venv
+. .venv/bin/activate
+pip install notebook
+
+## install spark
+
+wget https://dst-de.s3.eu-west-3.amazonaws.com/pyspark_fr/spark.tgz
+
+tar xzvf spark.tgz
+sudo mv spark-3.5.0-bin-hadoop3/ /opt/spark
+
+## set environment variable
+
+export SPARK_HOME=/opt/spark
+export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
+export PYTHONPATH=$(ZIPS=("$SPARK_HOME"/python/lib/*.zip); IFS=:; echo "${ZIPS[*]}"):$PYTHONPATH
+
+## 
+
+rm spark.tgz
+sed -i 's/rootLogger.level = info/rootLogger.level = error/' /opt/spark/conf/log4j2.properties.template
+mv /opt/spark/conf/log4j2.properties.template /opt/spark/conf/log4j2.properties
+
+</details>
+
