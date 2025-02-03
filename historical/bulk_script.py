@@ -13,12 +13,30 @@ def insert_elastic_search(df, index):
     print(df)
 
     # mapping
+    #mapping = {
+        #"mappings": {
+            #"properties": {
+                #"symbol": {"type": "text"},
+                #"price": { "type": "float"},
+                #"time": {"type": "date"}
+                #}
+            #}
+        #}
+    
     mapping = {
         "mappings": {
             "properties": {
-                "symbol": {"type": "text"},
-                "price": { "type": "float"},
-                "time": {"type": "date"}
+                "timestamp": {"type": "date"},
+                "BTC_close": { "type": "float"},
+                "BTC_volume": {"type": "float"},
+                "BTC_volume": {"type": "float"},
+                "ETH_close": {"type": "float"},
+                "ETH_volume": {"type": "float"},
+                "BTC_price_change": {"type": "float"},
+                "ETC_price_change": {"type": "float"},
+                "BTC_volatility": {"type": "float"},
+                "ETC_volatility": {"type": "float"},
+                "BTC_ETC_ratio": {"type": "float"}
                 }
             }
         }
