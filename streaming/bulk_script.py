@@ -26,7 +26,7 @@ def insert_elastic_search(df, index):
         for _, row in df.iterrows():
             yield {
                 "_index": index,
-                "_source": row.to_dict()
+                "_source": row.to_dict()    
             }
 
     helpers.bulk(es, bulk_data_generator(df)) 

@@ -14,6 +14,10 @@ def build_trad_data_frame(df):
 
     df['BTC_ETH_ratio'] = df['BTC_close'] / df['ETH_close']
 
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+    df["time_numeric"] = df["timestamp"].astype('int64') // 10**9
+
     df.dropna(inplace=True)
 
     return df
