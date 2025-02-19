@@ -34,7 +34,7 @@ services:
       start_period: 30s
 
   historical:
-    build: ./historical  # Verweis auf den Unterordner "app"
+    build: ./historical 
     container_name: python-app
     depends_on:
       elasticsearch:
@@ -44,7 +44,7 @@ services:
     networks:
       - es-net
     volumes:
-      - ./models:/historical/data  # Mountet das Volume in den Container
+      - ./models:/historical/data 
 
 networks:
   es-net:
