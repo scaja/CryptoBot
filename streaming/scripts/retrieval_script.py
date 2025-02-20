@@ -44,7 +44,7 @@ def on_open(ws):
         print("Closing WebSocket after 5 seconds...")
         ws.close()
     
-    timer = threading.Timer(5, stop_stream)
+    timer = threading.Timer(120, stop_stream)
     timer.start()
 
 # run script trades #

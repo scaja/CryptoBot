@@ -1,0 +1,17 @@
+# API und Websocket
+python-binance
+websocket-client
+requests
+
+# Datenverarbeitung
+pandas
+numpy
+
+# Machine Learning / Preprocessing (falls nötig)
+scikit-learn
+
+# Environment-Variablen
+python-dotenv
+
+# Elasticsearch-Anbindung
+elasticsearch

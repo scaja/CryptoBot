@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 import pandas as pd
-import sys
+#import sys
 
 # Build dataframe
 def build_trad_data_frame(df, symbol):

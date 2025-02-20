@@ -4,7 +4,7 @@ from elasticsearch import Elasticsearch, helpers
 def insert_elastic_search(df, index):
   
     # Connection to the cluster
-    es = Elasticsearch(hosts = "http://@localhost:9200")
+    es = Elasticsearch(hosts = "http://@elasticsearch:9200")
 
     # mapping
     mapping = {

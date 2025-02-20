@@ -1,7 +1,46 @@
 services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.1.2
+    container_name: es-container
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    networks:
+      - es-net
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+
+  kibana:
+    container_name: kb-container
+    image: docker.elastic.co/kibana/kibana:8.1.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-container:9200
+    networks:
+      - es-net
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - 5601:5601
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5601"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
   fastapi-app:
     build: ./FastApi
     container_name: fastapi-container
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - es-net
     ports:
       - "8000:8000"
     volumes:
@@ -11,3 +50,19 @@ services:
       interval: 10s
       retries: 5
       start_period: 20s
+
+  streaming:
+    build: ./streaming
+    container_name: streaming-container
+    command: ["python", "./scripts/retrieval_script.py"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    networks:
+      - es-net
+
+networks:
+  es-net:
+    driver: bridge
