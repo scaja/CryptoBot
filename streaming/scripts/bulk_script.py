@@ -12,7 +12,8 @@ def insert_elastic_search(df, index):
             "properties": {
                 "symbol": {"type": "text"},
                 "price": { "type": "float"},
-                "time": {"type": "date"}
+                "time": {"type": "date"},
+                "prediction": { "type": "float"}
                 }
             }
         }

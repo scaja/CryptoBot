@@ -130,3 +130,10 @@ networks:
     driver: bridge
 
 </details>
+
+<details>
+<summary>commands</summary>
+
+docker compose -f docker-compose-bot.yml up --build --force-recreate --renew-anon-volumes
+
+</details>
