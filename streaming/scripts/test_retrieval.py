@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 import test_preprocessing as test_preprocessing 
-import bulk_script as bulk_script
+import test_bulk as test_bulk
 
 import websocket
 import json
@@ -13,6 +13,7 @@ interval = "1m"
 
 # Construct WebSocket URL for multiple streams
 socket = f"wss://stream.binance.com:9443/stream?streams={'/'.join([f'{s}@kline_{interval}' for s in symbols])}"
+
 
 def on_message(ws, message):
     """Handles incoming WebSocket messages for multiple kline data."""
@@ -28,8 +29,11 @@ def on_message(ws, message):
 
     structured_data = test_preprocessing.build_streaming_df(kline, symbol)
 
+    index = "streaming"
+    test_bulk.insert_elastic_search(structured_data, index)
+
     # Print structured data
-    print(json.dumps(structured_data, indent=4))
+    #print(structured_data)
 
 def on_error(ws, error):
     print(f"Error: {error}")
