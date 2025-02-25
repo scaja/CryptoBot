@@ -70,6 +70,7 @@ intercept = regressor.intercept
 sklearn_model = SklearnLR()
 sklearn_model.coef_ = np.array(coefficients)  
 sklearn_model.intercept_ = intercept 
+sklearn_model.feature_names_in_ = np.array(feature_cols)  # Add this line
 
 output_dir = "/historical/data"
 os.makedirs(output_dir, exist_ok=True)

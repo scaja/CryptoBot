@@ -8,7 +8,7 @@ import json
 from datetime import datetime, timezone
 
 # Define symbols and interval
-symbols = ["btcusdt", "ethbtc"]
+symbols = ["btcusdt", "ethusdt"]
 interval = "1m"  
 
 # Construct WebSocket URL for multiple streams
@@ -28,21 +28,19 @@ def on_message(ws, message):
         return  # Ignore non-final Klines
 
     streaming_df = test_preprocessing.build_streaming_df(kline, symbol)
+    print("streaming_df", streaming_df)
 
-    if not streaming_df:
+    index = "streaming"
+    streaming_data = test_bulk.insert_elastic_search(streaming_df, index)
+    print("streaming_data", streaming_data)
 
-        index = "streaming"
-        streaming_data = test_bulk.insert_elastic_search(streaming_df, index)
-
+    if len(streaming_data) != 0:
         prediction_df = test_preprocessing.build_prediction_df(streaming_data)
-    
-        prediction = test_bulk.insert_prediction(prediction_df, index)
+        print("prediction_df", prediction_df)
 
-        print("prediction")
-        print(prediction)
+        test_bulk.insert_prediction(prediction_df, index)
 
-        #test_bulk.insert_prediction(index, , prediction)
-    
+        print("Succcess")
 
 def on_error(ws, error):
     print(f"Error: {error}")

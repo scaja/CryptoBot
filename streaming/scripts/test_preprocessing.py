@@ -16,15 +16,21 @@ def build_streaming_df(kline, symbol):
     stock_symbol = symbol[:3].upper()
 
     transformed_data = {
-        "utc_time": datetime.fromtimestamp(kline["t"] / 1000, timezone.utc).isoformat(),  # Keep the original timestamp
+        "timestamp": datetime.fromtimestamp(kline["t"] / 1000, timezone.utc).isoformat(),  # Keep the original timestamp
         stock_symbol + "_close": float(kline["c"]),  
         stock_symbol + "_volume": float(kline["v"]),  
         stock_symbol + "_price_change": price_change,  
         stock_symbol + "_volatility": volatility, 
-        "timestamp": kline["t"] // 1000 
+        "time_numeric": kline["t"] // 1000 
     }
 
+    print("transformed_data:", transformed_data)
+
+
     structured_data = pd.DataFrame([transformed_data])
+
+
+    print("structured_data:", structured_data)
 
     return structured_data
 
