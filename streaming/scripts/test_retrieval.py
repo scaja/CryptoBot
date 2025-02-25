@@ -27,19 +27,29 @@ def on_message(ws, message):
     if not kline["x"]:
         return  # Ignore non-final Klines
 
-    structured_data = test_preprocessing.build_streaming_df(kline, symbol)
+    streaming_df = test_preprocessing.build_streaming_df(kline, symbol)
 
-    index = "streaming"
-    test_bulk.insert_elastic_search(structured_data, index)
+    if not streaming_df:
 
-    # Print structured data
-    #print(structured_data)
+        index = "streaming"
+        streaming_data = test_bulk.insert_elastic_search(streaming_df, index)
+
+        prediction_df = test_preprocessing.build_prediction_df(streaming_data)
+    
+        prediction = test_bulk.insert_prediction(prediction_df, index)
+
+        print("prediction")
+        print(prediction)
+
+        #test_bulk.insert_prediction(index, , prediction)
+    
 
 def on_error(ws, error):
     print(f"Error: {error}")
 
 def on_close(ws, close_status_code, close_msg):
-    print("WebSocket closed. Reconnecting...")
+    print("WebSocket closed.")
+    #print("reconnecting")
     #reconnect()
 
 def on_open(ws):

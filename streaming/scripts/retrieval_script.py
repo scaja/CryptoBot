@@ -90,7 +90,12 @@ for symbol in symbol_array:
 
     df = pd.DataFrame()
 
-    socket = f'wss://stream.binance.com:9443/ws/{symbol}@trade'
+    #symbol = "btcusdt"  # Change this to "ethusdt" or any other trading pair
+    interval = "1m"  # 1-minute candles
+    #socket = f'wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}'
+    socket = f'wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}'
+
+    #socket = f'wss://stream.binance.com:9443/ws/{symbol}@trade'
 
     print(socket)
     
