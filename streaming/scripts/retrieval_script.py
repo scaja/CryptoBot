@@ -3,108 +3,62 @@
 import preprocessing_script as preprocessing_script 
 import bulk_script as bulk_script
 
-#from binance import BinanceSocketManager
-from binance.client import Client
-from dotenv import load_dotenv
+#from binance.client import Clientv
 import websocket
-import pandas as pd
 import json
-import os
-import threading
-import sys
-import requests
 
-API_URL = "http://fastapi-container:8000/predict"
+# Define symbols and interval
+symbols = ["btcusdt", "ethusdt"]
+interval = "1m"  
 
+# Construct WebSocket URL for multiple streams
+socket = f"wss://stream.binance.com:9443/stream?streams={'/'.join([f'{s}@kline_{interval}' for s in symbols])}"
 
-df_prediction = pd.DataFrame([{
-    "BTC_ETH_ratio": 0.5,
-    "BTC_price_change": 1.2,
-    "BTC_volatility": 0.8,
-    "BTC_volume": 120000,
-    "ETH_close": 3500,
-    "ETH_price_change": 0.9,
-    "ETH_volatility": 0.5,
-    "ETH_volume": 80000,
-    "BTC_lag_1": 40000,
-    "BTC_lag_3": 39800,
-    "ETH_lag_1": 3400,
-    "ETH_lag_3": 3350
-}])
-
-def get_prediction(df):
-    print("hello")
-    print(df.head())
-    data_json = {"features": df.to_dict(orient="records")[0]}
-    print(data_json)
-    response = requests.post(API_URL, json=data_json)
-    print("response")
-    print(response)
-    return response
-
-# Streaming Data (Websocket Market Endpoint) #
-# https://binance-docs.github.io/apidocs/spot/en/#websocket-market-streams
-
-# Load credentials
-load_dotenv()
-binance_api_key = os.getenv("BINANCE_API_KEY")
-binance_api_secret = os.getenv("BINANCE_API_SECRET")
-client = Client(binance_api_key, binance_api_secret, testnet=True)
-
-# Get trades from Websocket Market Endpoint
 def on_message(ws, message):
-    msg = json.loads(message)
-    print(msg)
-    d = [(msg['T'],msg['p'])]
-    df = pd.DataFrame.from_records(d)
-    df_streaming_data = preprocessing_script.build_trad_data_frame(df, symbol)
-    print("df_streaming_data", df_streaming_data.head(3))
-    prediction = get_prediction(df_prediction)
-    df_streaming_data["BTC_close_prediction"] = prediction.json().get("BTC_close_prediction", None)
-    print("prediction" + str(prediction.json().get("BTC_close_prediction")))
-    bulk_script.insert_elastic_search(df_streaming_data, index)
+
+    """Handles incoming WebSocket messages for multiple kline data."""
+    data = json.loads(message)
+    
+    # Extract kline data
+    kline = data["data"]["k"]
+    symbol = data["data"]["s"]
+
+    # **Check if the Kline is finalized**
+    if not kline["x"]:
+        return  # Ignore non-final Klines
+
+    streaming_df = preprocessing_script.build_streaming_df(kline, symbol)
+    print("streaming_df", streaming_df)
+
+    index = "streaming"
+    streaming_data = bulk_script.insert_elastic_search(streaming_df, index)
+    print("streaming_data", streaming_data)
+
+    if len(streaming_data) != 0:
+        prediction_df = preprocessing_script.build_prediction_df(streaming_data)
+        print("prediction_df", prediction_df)
+
+        bulk_script.insert_prediction(prediction_df, index)
+
+        print("Succcess")    
  
 def on_error(ws, error):
-    print(error)
+    print(f"Error: {error}")
 
 def on_close(ws, close_status_code, close_msg):
     print('### closed ###')
+    #print("reconnecting")
+    #reconnect()
     
 def on_open(ws):
-    print("Opened connection")
-    # Start a timer to close the WebSocket after 5 seconds
-    def stop_stream():
-        print("Closing WebSocket after 5 seconds...")
-        ws.close()
-    
-    timer = threading.Timer(5, stop_stream)
-    timer.start()
+    print(f"Connected to Binance WebSocket for {symbols} @ {interval} interval.")
 
-# run script trades #
-
-# Select parameters
-symbol_array = ['btcusdt','ethbtc']
-index = "streaming"
-
-for symbol in symbol_array:
-
-    df = pd.DataFrame()
-
-    #symbol = "btcusdt"  # Change this to "ethusdt" or any other trading pair
-    interval = "1m"  # 1-minute candles
-    #socket = f'wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}'
-    socket = f'wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}'
-
-    #socket = f'wss://stream.binance.com:9443/ws/{symbol}@trade'
-
-    print(socket)
-    
-    ws = websocket.WebSocketApp(socket, on_open=on_open, on_message=on_message, on_error=on_error,on_close=on_close)
+def reconnect():
+    ws = websocket.WebSocketApp(socket, on_message=on_message, on_error=on_error, on_close=on_close)
+    ws.on_open = on_open
     ws.run_forever()
 
-
-
-
-
-
-
+# Select parameters
+ws = websocket.WebSocketApp(socket, on_message=on_message, on_error=on_error, on_close=on_close)
+ws.on_open = on_open
+ws.run_forever()

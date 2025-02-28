@@ -1,7 +1,10 @@
 #! /usr/bin/python
+
 from elasticsearch import Elasticsearch #, helpers
 import joblib
 import pandas as pd
+from pyspark.ml.feature import MinMaxScalerModel, VectorAssembler
+from pyspark.ml.regression import LinearRegressionModel
 
 # Connection to the cluster
 es = Elasticsearch(hosts = "http://@localhost:9200")
@@ -92,8 +95,8 @@ def prediction_enricher(new_document, current_timestamp, index):
     
 def insert_prediction(df, index):
 
-    model_path = "/home/lj/Desktop/DataScientest/CryptoBot/models/crypto_model.joblib"
-    model = joblib.load(model_path)
+    #model_path = "/home/lj/Desktop/DataScientest/CryptoBot/models/crypto_model.joblib"
+    #model = joblib.load(model_path)
  
     feature_names = [
         "BTC_ETH_ratio", "BTC_price_change", "BTC_volatility", "BTC_volume", 
@@ -102,29 +105,47 @@ def insert_prediction(df, index):
     ]
 
     df_prediction = df[feature_names] 
-    btc_close_pred = model.predict(df_prediction)
 
-    print("btc_close_pred")
-    print(btc_close_pred)
+    model_path_scaler = "/home/lj/Desktop/DataScientest/CryptoBot/models/scaler_pyspark"
+    scaler_model = MinMaxScalerModel.load(model_path_scaler)
+    print("Scaler loaded successfully!")
 
-    print("df_prediction")
-    print(df_prediction)
+    model_path_regressor = "/home/lj/Desktop/DataScientest/CryptoBot/models/crypto_model.joblib"
+    loaded_regressor = LinearRegressionModel.load(model_path_regressor)
+    print("Model loaded successfully!")
 
-    print("index")
-    print(index)
+    vector_assembler = VectorAssembler(inputCols=feature_names, outputCol="features")
+    df_prediction_spark = vector_assembler.transform(df_prediction)
 
-    print("time_numeric")
-    print(df.iloc[0]["time_numeric"])
+    df_prediction_scaled = scaler_model.transform(df_prediction_spark)
 
-    print("BTC_ETH_ratio")
-    print(df.iloc[0]["BTC_ETH_ratio"])
+    predictions = loaded_regressor.transform(df_prediction_scaled)
+    
+    predictions.select("BTC_close_prediction").show(5, truncate=False)
+
+    #btc_close_pred = model.predict(df_prediction)
+
+    #print("btc_close_pred")
+    #print(btc_close_pred)
+
+    #print("df_prediction")
+    #print(df_prediction)
+
+    #print("index")
+    #print(index)
+
+    #print("time_numeric")
+    #print(df.iloc[0]["time_numeric"])
+
+    #print("BTC_ETH_ratio")
+    #print(df.iloc[0]["BTC_ETH_ratio"])
     
         
     es.update(
         index=index,
         id=int(df.iloc[0]["time_numeric"]),
         body={
-            "doc": {"BTC_close_prediction": float(btc_close_pred[0]),
+            "doc": {"BTC_close_prediction": float(predictions.select("BTC_close_prediction")),
                     "BTC_ETH_ratio": float(df.iloc[0]["BTC_ETH_ratio"])},
             "doc_as_upsert": True
         }

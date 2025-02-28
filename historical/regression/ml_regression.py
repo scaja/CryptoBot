@@ -70,11 +70,20 @@ intercept = regressor.intercept
 sklearn_model = SklearnLR()
 sklearn_model.coef_ = np.array(coefficients)  
 sklearn_model.intercept_ = intercept 
-sklearn_model.feature_names_in_ = np.array(feature_cols)  # Add this line
+sklearn_model.feature_names_in_ = np.array(feature_cols)
 
 output_dir = "/historical/data"
 os.makedirs(output_dir, exist_ok=True)
 
+# save scaler
+file_to_save_scaler = os.path.join(output_dir, "scaler_pyspark")
+scaler_model.write().overwrite().save(file_to_save_scaler)
+
+# save model in pyspark format
+file_to_save_regressor = os.path.join(output_dir, "regressor_pyspark")
+regressor.write().overwrite().save(file_to_save_regressor)
+
+# save model in joblib format
 file_path = os.path.join(output_dir, "crypto_model.joblib")
 joblib.dump(sklearn_model, file_path)
 
