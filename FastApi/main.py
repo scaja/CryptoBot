@@ -134,10 +134,10 @@ def predict(data: PredictionInput):
         print("predictions")
         print(predictions)
     
-        predictions.select("prediction").show(5, truncate=False)
+        #prediction = predictions.select("prediction").show(5, truncate=False)
 
-        print(predictions)
-       
+        prediction = predictions.select("prediction").collect() 
+        prediction_value = prediction[0]["prediction"]
         
         # print("input_data")
         # print(input_data)
@@ -146,6 +146,6 @@ def predict(data: PredictionInput):
         # print("btc_close_pred")
         # print(btc_close_pred)
 
-        return {"BTC_close_prediction": predictions[0]}
+        return {"BTC_close_prediction": prediction_value}
     except Exception as e:
         return {"error": str(e)}
