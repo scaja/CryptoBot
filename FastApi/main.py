@@ -62,7 +62,7 @@ def health_check():
     }
 
 class PredictionInput(BaseModel):
-    independent_features: dict
+    features: dict
 
 @app.post("/predict")
 def predict(data: PredictionInput):
@@ -79,16 +79,29 @@ def predict(data: PredictionInput):
         print("scaler_model")
         print(scaler_model)
 
-        df_prediction = pd.DataFrame([list(data.independent_features.values())], columns=feature_names) 
+        print("long list with data features")
+
+        print([list(data.features.values())])
+
+        df_prediction = pd.DataFrame([list(data.features.values())], columns=feature_names) 
+
         df_prediction_spark = spark.createDataFrame(df_prediction)
 
         print("df_prediction")
         print(df_prediction)
 
+        # feature_names = ["BTC_ETH_ratio", "BTC_price_change", "BTC_volatility", "BTC_volume",
+        #          "ETH_close", "ETH_price_change", "ETH_volatility", "ETH_volume",
+        #          "BTC_lag_1", "BTC_lag_3", "ETH_lag_1", "ETH_lag_3"]
+
+
+        # vector_assembler.setInputCols(feature_names)
+
+        vector_assembler.setOutputCol("independent_features")
         df_prediction_spark = vector_assembler.transform(df_prediction_spark)
         df_prediction_spark.show()
 
-        df_prediction_spark.select("features").show(truncate=False)
+        df_prediction_spark.select("independent_features").show(truncate=False)
         df_prediction_spark.printSchema()
         
         print("df_prediction_spark")
@@ -104,8 +117,8 @@ def predict(data: PredictionInput):
         print(f"Scaler Input Column: {scaler_model.getInputCol()}")
         print(f"Scaler Output Column: {scaler_model.getOutputCol()}")
 
-        scaler_model.setInputCol("features")
-        scaler_model.setOutputCol("scaled_features")
+        #scaler_model.setInputCol("features")
+        #scaler_model.setOutputCol("scaled_features")
 
         df_prediction_scaled = scaler_model.transform(df_prediction_spark)
         df_prediction_scaled.show(truncate=False)
