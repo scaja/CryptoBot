@@ -62,7 +62,7 @@ def health_check():
     }
 
 class PredictionInput(BaseModel):
-    features: dict
+    independent_features: dict
 
 @app.post("/predict")
 def predict(data: PredictionInput):
@@ -70,24 +70,58 @@ def predict(data: PredictionInput):
 
         print("hello")
 
-        df_prediction = pd.DataFrame([list(data.features.values())], columns=feature_names) 
+        print("spark")
+        print(spark)
+        
+        print("model_path_regressor")
+        print(model_path_regressor)
+
+        print("scaler_model")
+        print(scaler_model)
+
+        df_prediction = pd.DataFrame([list(data.independent_features.values())], columns=feature_names) 
+        df_prediction_spark = spark.createDataFrame(df_prediction)
 
         print("df_prediction")
         print(df_prediction)
 
-        df_prediction_spark = vector_assembler.transform(df_prediction)
+        df_prediction_spark = vector_assembler.transform(df_prediction_spark)
+        df_prediction_spark.show()
+
+        df_prediction_spark.select("features").show(truncate=False)
+        df_prediction_spark.printSchema()
         
         print("df_prediction_spark")
         print(df_prediction_spark)
+        
+        print("scaler_model")
+        print(scaler_model)
+
+        print(f"SparkContext available: {spark.sparkContext._jsc is not None}")
+
+        print(f"scaler_model: {scaler_model}")
+
+        print(f"Scaler Input Column: {scaler_model.getInputCol()}")
+        print(f"Scaler Output Column: {scaler_model.getOutputCol()}")
+
+        scaler_model.setInputCol("features")
+        scaler_model.setOutputCol("scaled_features")
 
         df_prediction_scaled = scaler_model.transform(df_prediction_spark)
+        df_prediction_scaled.show(truncate=False)
 
         print("df_prediction_scaled")
         print(df_prediction_scaled)
 
+        print("loaded_regressor")
+        print(loaded_regressor)
+
         predictions = loaded_regressor.transform(df_prediction_scaled)
+
+        print("predictions")
+        print(predictions)
     
-        predictions.select("BTC_close_prediction").show(5, truncate=False)
+        predictions.select("prediction").show(5, truncate=False)
 
         print(predictions)
        
