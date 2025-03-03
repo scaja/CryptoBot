@@ -7,7 +7,6 @@ from pyspark.sql import SparkSession
 from pyspark.ml.feature import MinMaxScalerModel, VectorAssembler
 from pyspark.ml.regression import LinearRegressionModel
 
-
 app = FastAPI()
 
 spark = SparkSession.builder \
@@ -15,22 +14,22 @@ spark = SparkSession.builder \
     .config("spark.driver.memory", "2g") \
     .getOrCreate()
 
-print("spark")
-print(spark)
+# prepare vector assembler
+feature_names = [
+    "BTC_ETH_ratio", "BTC_price_change", "BTC_volatility", "BTC_volume", 
+    "ETH_close", "ETH_price_change", "ETH_volatility", "ETH_volume", 
+    "BTC_lag_1", "BTC_lag_3", "ETH_lag_1", "ETH_lag_3"
+]
 
-#model_path = "/app/data/crypto_model.joblib"
-model_path_regressor = "/app/data/regressor_pyspark"
+vector_assembler = VectorAssembler(inputCols=feature_names, outputCol="independent_features")
+
+# load scaler 
 model_path_scaler = "/app/data/scaler_pyspark"
+scaler_model = MinMaxScalerModel.load(model_path_scaler)
 
-print("model_path_regressor")
-print(model_path_regressor)
-
-# try:
-#     model = joblib.load(model_path)
-#     model_loaded = True
-# except Exception as e:
-#     model_loaded = False
-#     load_error = str(e)
+# load regression
+model_path_regressor = "/app/data/regressor_pyspark"
+loaded_regressor = LinearRegressionModel.load(model_path_regressor)
 
 try:
     loaded_regressor = LinearRegressionModel.load(model_path_regressor)
@@ -38,19 +37,6 @@ try:
 except Exception as e:
     model_loaded = False
     load_error = str(e)
-
-
-#model = joblib.load(model_path)
-loaded_regressor = LinearRegressionModel.load(model_path_regressor)
-scaler_model = MinMaxScalerModel.load(model_path_scaler)
-
-feature_names = [
-    "BTC_ETH_ratio", "BTC_price_change", "BTC_volatility", "BTC_volume", 
-    "ETH_close", "ETH_price_change", "ETH_volatility", "ETH_volume", 
-    "BTC_lag_1", "BTC_lag_3", "ETH_lag_1", "ETH_lag_3"
-]
-
-vector_assembler = VectorAssembler(inputCols=feature_names, outputCol="features")
 
 @app.get("/health")
 def health_check():
@@ -68,84 +54,23 @@ class PredictionInput(BaseModel):
 def predict(data: PredictionInput):
     try:
 
-        print("hello")
-
-        print("spark")
-        print(spark)
-        
-        print("model_path_regressor")
-        print(model_path_regressor)
-
-        print("scaler_model")
-        print(scaler_model)
-
-        print("long list with data features")
-
-        print([list(data.features.values())])
-
+        # transform input data to spark dateframe
         df_prediction = pd.DataFrame([list(data.features.values())], columns=feature_names) 
-
         df_prediction_spark = spark.createDataFrame(df_prediction)
 
-        print("df_prediction")
-        print(df_prediction)
-
-        # feature_names = ["BTC_ETH_ratio", "BTC_price_change", "BTC_volatility", "BTC_volume",
-        #          "ETH_close", "ETH_price_change", "ETH_volatility", "ETH_volume",
-        #          "BTC_lag_1", "BTC_lag_3", "ETH_lag_1", "ETH_lag_3"]
-
-
-        # vector_assembler.setInputCols(feature_names)
-
-        vector_assembler.setOutputCol("independent_features")
+        # transform numbers to vectors
         df_prediction_spark = vector_assembler.transform(df_prediction_spark)
-        df_prediction_spark.show()
-
-        df_prediction_spark.select("independent_features").show(truncate=False)
-        df_prediction_spark.printSchema()
         
-        print("df_prediction_spark")
-        print(df_prediction_spark)
-        
-        print("scaler_model")
-        print(scaler_model)
-
-        print(f"SparkContext available: {spark.sparkContext._jsc is not None}")
-
-        print(f"scaler_model: {scaler_model}")
-
-        print(f"Scaler Input Column: {scaler_model.getInputCol()}")
-        print(f"Scaler Output Column: {scaler_model.getOutputCol()}")
-
-        #scaler_model.setInputCol("features")
-        #scaler_model.setOutputCol("scaled_features")
-
+        # transform vector to 0 to 1 range
         df_prediction_scaled = scaler_model.transform(df_prediction_spark)
         df_prediction_scaled.show(truncate=False)
 
-        print("df_prediction_scaled")
-        print(df_prediction_scaled)
-
-        print("loaded_regressor")
-        print(loaded_regressor)
-
+        # recieve prediction from model
         predictions = loaded_regressor.transform(df_prediction_scaled)
-
-        print("predictions")
-        print(predictions)
-    
-        #prediction = predictions.select("prediction").show(5, truncate=False)
-
         prediction = predictions.select("prediction").collect() 
         prediction_value = prediction[0]["prediction"]
-        
-        # print("input_data")
-        # print(input_data)
-        # btc_close_pred = model.predict(input_data)
 
-        # print("btc_close_pred")
-        # print(btc_close_pred)
-
+        #return prediction
         return {"BTC_close_prediction": prediction_value}
     except Exception as e:
         return {"error": str(e)}

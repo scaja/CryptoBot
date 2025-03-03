@@ -22,6 +22,7 @@ mapping = {
             "ETC_volatility": {"type": "float", "null_value": None},
             "BTC_ETC_ratio": {"type": "float", "null_value": None},
             "BTC_close_prediction": {"type": "float", "null_value": None},
+            "BTC_buy_sell_signal": {"type": "boolean"},
             "time_numeric": {"type": "long", "null_value": None}
         }
     }
@@ -95,6 +96,14 @@ def prediction_enricher(new_document, current_timestamp, index):
     
 def insert_prediction(df, index):
 
+    print("df")
+    print(df)
+
+    df_BTC_close = df["BTC_close"]
+
+    print("df_BTC_close")
+    print(df_BTC_close)
+
     feature_names = [
         "BTC_ETH_ratio", "BTC_price_change", "BTC_volatility", "BTC_volume", 
         "ETH_close", "ETH_price_change", "ETH_volatility", "ETH_volume", 
@@ -104,6 +113,9 @@ def insert_prediction(df, index):
     df_prediction = df[feature_names] 
 
     features_dict =df_prediction.iloc[0].to_dict()
+    print("features_dict")
+    print(features_dict)
+
     payload = {"features": features_dict}
 
     print("payload")
@@ -119,14 +131,28 @@ def insert_prediction(df, index):
 
     print("btc_prediction")
     print(btc_prediction)
+
+    signal = decision_buy_sell(df_BTC_close, btc_prediction)
             
     es.update(
         index=index,
         id=int(df.iloc[0]["time_numeric"]),
         body={
             "doc": {"BTC_close_prediction": btc_prediction,
-                    "BTC_ETH_ratio": float(df.iloc[0]["BTC_ETH_ratio"])},
+                    "BTC_ETH_ratio": float(df.iloc[0]["BTC_ETH_ratio"]),
+                    "BTC_buy_sell_signal": signal
+                    },      
             "doc_as_upsert": True
         }
     )
+
+def decision_buy_sell(df_BTC_close, btc_prediction):
+    
+    signal = btc_prediction > df_BTC_close
+
+    print("signal")
+    print(signal)
+
+    return signal
+
 
