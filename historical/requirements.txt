@@ -1,9 +1,20 @@
-python-binance
-requests
-python-dotenv
-pandas
-elasticsearch
-pyspark
-scikit-learn
-joblib
-numpy
+# API and WebSocket Libraries
+python-binance  # A library for interacting with the Binance API to fetch historical and real-time market data from Binance.
+requests  # A simple HTTP library to send requests to external APIs, useful for making API calls to fetch data or interact with web services.
+
+# Environment Variables
+python-dotenv  # A library to manage environment variables by loading them from a `.env` file, which helps keep sensitive information secure (like API keys).
+
+# Data Processing Libraries
+pandas  # A powerful data manipulation and analysis library, essential for handling, cleaning, and transforming data.
+numpy  # A library for numerical computing that provides support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays.
+
+# Elasticsearch Integration
+elasticsearch  # Official Elasticsearch client for Python, used for storing, searching, and analyzing large datasets in Elasticsearch.
+
+# Machine Learning and Model Training
+pyspark  # A Python interface for Apache Spark, used for big data processing and distributed machine learning tasks. Ideal for working with large datasets that don’t fit into memory.
+scikit-learn  # A widely used machine learning library for Python, providing simple and efficient tools for data mining and data analysis, including regression, classification, and clustering models.
+
+# Model Persistence and Serialization
+joblib  # A library for saving and loading machine learning models (such as the trained model) efficiently, especially for large numpy arrays, like the ones produced by scikit-learn models.

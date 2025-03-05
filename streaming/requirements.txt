@@ -1,17 +1,17 @@
-# API und Websocket
-python-binance
-websocket-client
-requests
+# API and WebSocket Libraries
+python-binance  # Library to interact with the Binance API for fetching market data
+websocket-client  # Library to manage WebSocket connections for real-time streaming data from Binance
+requests  # A popular HTTP library for making requests to external services, used for simple API calls
 
-# Datenverarbeitung
-pandas
-numpy
+# Data Processing Libraries
+pandas  # Powerful data manipulation and analysis library, essential for handling and cleaning data
+numpy  # Numerical computing library, used for efficient numerical operations
 
-# Machine Learning / Preprocessing (falls nötig)
-scikit-learn
+# Machine Learning / Preprocessing (if necessary)
+scikit-learn  # Machine learning library used for building and training regression models, as well as data preprocessing
 
-# Environment-Variablen
-python-dotenv
+# Environment Variables
+python-dotenv  # Library for loading environment variables from a .env file, keeping sensitive data secure
 
-# Elasticsearch-Anbindung
-elasticsearch
+# Elasticsearch Integration
+elasticsearch  # Official Elasticsearch client for Python, used to interact with Elasticsearch for storing and querying data
