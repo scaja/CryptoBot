@@ -204,6 +204,13 @@ def insert_prediction(df, index):
     # Determine the buy/sell signal based on the predicted and actual BTC close price
     signal = decision_buy_sell(df_BTC_close, btc_prediction)
 
+    print("signal_1")
+    print(signal)
+
+    print("type_signal_1")
+    print(type(signal))
+
+
     # Update the Elasticsearch index with the new prediction and buy/sell signal
     es.update(
         index=index,
@@ -212,7 +219,7 @@ def insert_prediction(df, index):
             "doc": {
                 "BTC_close_prediction": btc_prediction,  # Store predicted BTC close price
                 "BTC_ETH_ratio": float(df.iloc[0]["BTC_ETH_ratio"]),  # Store BTC/ETH ratio
-                "BTC_buy_sell_signal": signal  # Store the buy/sell signal
+                "BTC_buy_sell_signal": signal # Store the buy/sell signal
             },      
             "doc_as_upsert": True  # Insert if the document doesn't exist, update if it does
         }
@@ -235,7 +242,12 @@ def decision_buy_sell(df_BTC_close, btc_prediction):
     # Compare the predicted BTC closing price with the actual closing price.
     # If the prediction is higher than the actual price, return True (buy signal),
     # otherwise return False (sell signal).
-    signal = btc_prediction > df_BTC_close
+    signal = (btc_prediction > df_BTC_close).iloc[0]
+    print("signal")
+    print(signal)
+
+    print("type_signal")
+    print(type(signal))
 
     return signal
 
