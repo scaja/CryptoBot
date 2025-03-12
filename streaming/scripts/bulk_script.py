@@ -188,11 +188,20 @@ def insert_prediction(df, index):
     # Select the relevant feature columns from the DataFrame
     df_prediction = df[feature_names]  
 
+    print("df_prediction")
+    print(df_prediction.head())
+
     # Convert the first row of the DataFrame into a dictionary for API consumption
     features_dict = df_prediction.iloc[0].to_dict()
 
+    print("features_dict")
+    print(features_dict)
+
     # Prepare the JSON payload for the prediction API request
     payload = {"features": features_dict}
+
+    print("payload")
+    print(payload)
 
     # Send the request to the external prediction API
     response = requests.post(API_URL, json=payload)  

@@ -207,3 +207,57 @@ docker compose -f docker-compose-bot.yml up --build --force-recreate --renew-ano
 docker compose -f docker-compose.yml up --build --force-recreate --renew-anon-volumes
 
 </details>
+
+docker compose -f docker-compose.yml up --build --force-recreate --renew-anon-volumes
+docker compose -f docker-compose-bot.yml up --build --force-recreate --renew-anon-volumes
+
+http://localhost:5601/app/dev_tools#/console
+
+
+http://localhost:8000/docs#/default/health_check_health_get
+
+curl -X 'GET' \
+  'http://localhost:8000/health' \
+  -H 'accept: application/json'
+
+{
+  "features": {
+    "BTC_ETH_ratio": 42.76210676634886,
+    "BTC_price_change": 0.00016184357266117022,
+    "BTC_volatility": 43.33999999999651,
+    "BTC_volume": 55.40676,
+    "ETH_close": 1904.72,
+    "ETH_price_change": 0.0012879349408864385,
+    "ETH_volatility": 3.2799999999999727,
+    "ETH_volume": 695.6582,
+    "BTC_lag_1": 81445.99,
+    "BTC_lag_3": 81422.88,
+    "ETH_lag_1": 1902.06,
+    "ETH_lag_3": 1896.47
+  }
+}
+
+GET streaming/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+DELETE streaming
+
+GET streaming/_search
+{
+  "query": {
+    "match": {
+      "time_numeric": 1740490740
+    }
+  }
+}
+
+GET historical/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
