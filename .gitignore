@@ -3,4 +3,5 @@ myenv/
 *.joblib
 __pycache__/
 models/
+elastic/
 */spark-3.5.0-bin-hadoop3/
