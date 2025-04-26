@@ -7,10 +7,10 @@ python-dotenv  # A library to manage environment variables by loading them from 
 
 # Data Processing Libraries
 pandas  # A powerful data manipulation and analysis library, essential for handling, cleaning, and transforming data.
-numpy  # A library for numerical computing that provides support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays.
+numpy==1.26.4 # A library for numerical computing that provides support for large, multi-dimensional arrays and matrices, along with a collection of mathematical functions to operate on these arrays.
 
 # Elasticsearch Integration
-elasticsearch  # Official Elasticsearch client for Python, used for storing, searching, and analyzing large datasets in Elasticsearch.
+elasticsearch==8.13.0  # Official Elasticsearch client for Python, used for storing, searching, and analyzing large datasets in Elasticsearch.
 
 # Machine Learning and Model Training
 pyspark  # A Python interface for Apache Spark, used for big data processing and distributed machine learning tasks. Ideal for working with large datasets that don’t fit into memory.
@@ -18,3 +18,15 @@ scikit-learn  # A widely used machine learning library for Python, providing sim
 
 # Model Persistence and Serialization
 joblib  # A library for saving and loading machine learning models (such as the trained model) efficiently, especially for large numpy arrays, like the ones produced by scikit-learn models.
+
+ta
+
+fredapi
+
+pandasdmx
+
+wbdata
+
+matplotlib
+
+seaborn
