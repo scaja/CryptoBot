@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y python3-pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy all script files into the container (used for processing or data handling)
-COPY scripts/ scripts/
+COPY scripts/crypto scripts/crypto
 
 # Copy the regression model files into the container
 COPY regression/ regression/
